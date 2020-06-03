@@ -43,7 +43,10 @@ export default class GotService {
         return this._transformHouse(house);
     }
 
-    _transformHouse = (house) => {
+    _transformHouse = (houseArr) => {
+
+        const house = this._transformItem(houseArr);
+
         return {
             name: house.name,
             region: house.region,
@@ -54,10 +57,13 @@ export default class GotService {
         }
     }
 
-    _transformBook = (book) => {
+    _transformBook = (bookArr) => {
+
+        const book = this._transformItem(bookArr);
+
         return {
             name: book.name,
-            publiser: book.publiser,
+            publisher: book.publisher,
             numberOfPages: book.numberOfPages,
             released: book.released
         }
@@ -65,21 +71,7 @@ export default class GotService {
 
     _transformCharacter = (char) => {
         
-        const arr = Object.entries(char);
-        arr.map((item) => {
-            if (item[1] === '') {
-                item[1] = 'this field is missing';
-                return item[1];
-            } else {
-                return item[1];
-            }
-            
-        })
-
-        const obj = {};
-        arr.forEach((item) => {
-            obj[item[0]] = item[1];
-        });
+        const obj = this._transformItem(char);
 
         return {
             name: obj.name,
@@ -88,5 +80,25 @@ export default class GotService {
             died: obj.died,
             culture: obj.culture
         }
+    }
+
+    _transformItem = (item) => {
+        const arr = Object.entries(item);
+            arr.map((item) => {
+                if (item[1] == '') {
+                    item[1] = 'this field is missing';
+                    return item[1];
+                } else {
+                    return item[1];
+                }
+                
+            })
+
+            const obj = {};
+            arr.forEach((item) => {
+                obj[item[0]] = item[1];
+            });
+
+            return obj
     }
 }

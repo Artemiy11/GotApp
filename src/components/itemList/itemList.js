@@ -1,12 +1,13 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import './itemList.css';
 import Spinner from '../randomChar/spinner';
 export default class ItemList extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             itemList: null
         }
+
     }
 
     componentDidMount() {
@@ -32,19 +33,19 @@ export default class ItemList extends Component {
                 <li
                     className="list-group-item"
                     key={this.generateID(1, 1000)}
-                    onClick={() => this.props.onCharSelected(41 + key)}>
+                    onClick={() => this.props.onItemSelected(this.props.keyPlus + key)}>
                     {label}
                 </li>
             )
         })
     }
-    
+
     render() {
 
         const { itemList } = this.state;
-        
+
         if (!itemList) {
-            return <Spinner/>
+            return <Spinner />
         }
 
         const items = this.renderItems(itemList);
@@ -55,4 +56,8 @@ export default class ItemList extends Component {
             </ul>
         );
     }
+}
+
+ItemList.defaultProps = {
+    onItemSelected: () => {}
 }
