@@ -1,63 +1,49 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import './itemList.css';
 import Spinner from '../randomChar/spinner';
-export default class ItemList extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            itemList: null
-        }
 
-    }
+function ItemList({getData, renderItem, onItemSelected, keyPlus}) {
 
-    componentDidMount() {
-        const { getData } = this.props;
+    const [itemList, updateList] = useState([]);
+
+    useEffect(() => {
 
         getData()
-            .then((itemList) => {
-                this.setState({
-                    itemList
-                })
+            .then((data) => {
+                updateList(data)
             })
-    }
+    }, [])
 
-    generateID(max, min) {
+    function generateID(max, min) {
         let id = Math.floor(Math.random() * (max - min + 41)) + min;
         return id.toString(36);
     }
 
-    renderItems(arr) {
+    function renderItems(arr) {
         return arr.map((item, key) => {
-            const label = this.props.renderItem(item);
+            const label = renderItem(item);
             return (
                 <li
                     className="list-group-item"
-                    key={this.generateID(1, 1000)}
-                    onClick={() => this.props.onItemSelected(this.props.keyPlus + key)}>
+                    key={generateID(1, 1000)}
+                    onClick={() => onItemSelected(keyPlus + key)}>
                     {label}
                 </li>
             )
         })
     }
 
-    render() {
-
-        const { itemList } = this.state;
-
-        if (!itemList) {
-            return <Spinner />
-        }
-
-        const items = this.renderItems(itemList);
-
-        return (
-            <ul className="item-list list-group">
-                {items}
-            </ul>
-        );
+    if (!itemList) {
+        return <Spinner />
     }
+
+    const items = renderItems(itemList);
+
+    return (
+        <ul className="item-list list-group">
+            {items}
+        </ul>
+    );
 }
 
-ItemList.defaultProps = {
-    onItemSelected: () => {}
-}
+export default ItemList;

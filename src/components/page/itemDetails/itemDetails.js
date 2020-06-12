@@ -1,6 +1,5 @@
-import React, {Component} from 'react';
+import React, { useState, useEffect } from 'react';
 import './itemDetails.css';
-import GotService from '../../../services/gotService';
 
 const Field = ({ item, field, label }) => {
     return (
@@ -13,62 +12,43 @@ const Field = ({ item, field, label }) => {
 
 export { Field };
 
-export default class ItemDetails extends Component {
-    constructor() {
-        super();
-        this.state = {
-            item: null
-        }
-    }
+function ItemDetails({ itemId, getItem, type, children }) {
 
-    gotService = new GotService();
+    const [item, setItem] = useState([]);
 
-    componentDidMount() {
-        this.updateChar();
-    }
+    useEffect(() => {
+        updateChar();
+    }, [item])
 
-    componentDidUpdate(prevProps) {
-        if (this.state.item !== prevProps.itemId) {
-            this.updateChar();
-        }
-    }
-
-    updateChar() {
-        let { itemId, getItem } = this.props;
-
+    function updateChar() {
         if (!itemId) {
             return;
         }
 
         getItem(itemId)
             .then(item => {
-                this.setState({
-                    item
-                })
+                setItem(item)
             })
-
     }
 
-    render() {
-        const { type } = this.props;
-        if (!this.state.item) {
-            return <span className="select-error">Please, select a {type}</span>
-        }
-
-        const { item } = this.state;
-        const { name } = item;
-
-        return (
-            <div className="char-details rounded">
-                <h4>{name}</h4>
-                <ul className="list-group list-group-flush">
-                    {
-                        React.Children.map(this.props.children, (child) => {
-                            return React.cloneElement(child, {item})
-                        })
-                    }
-                </ul>
-            </div>
-        );
+    if (!item) {
+        return <span className="select-error">Please, select a {type}</span>
     }
+
+    const { name } = item;
+
+    return (
+        <div className="char-details rounded">
+            <h4>{name}</h4>
+            <ul className="list-group list-group-flush">
+                {
+                    React.Children.map(children, (child) => {
+                        return React.cloneElement(child, { item })
+                    })
+                }
+            </ul>
+        </div>
+    );
 }
+
+export default ItemDetails;

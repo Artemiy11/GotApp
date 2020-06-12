@@ -1,66 +1,52 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import './randomChar.css';
 import GotService from '../../services/gotService';
 import Spinner from './spinner';
 import ErrorMessage from '../errorMessage';
 
-export default class RandomChar extends Component {
+function RandomChar() {
 
-    gotService = new GotService();
+    const gotService = new GotService();
 
-    constructor() {
-        super();
+    const [char, changeChar] = useState({});
+    const [loading, changeLoading] = useState(true);
+    const [error, changeError] = useState(false);
 
-        this.state = {
-            char: {},
-            loading: true,
-            error: false
-        };
+    useEffect(() => {
+        updateChar();  // вызов метода updateChar
+        const timerId = setInterval(updateChar, 5000);
+        return () => {
+            clearInterval(timerId);
+        }
+    }, [])
+
+    function onError(err) {
+        changeError(true);
+        changeLoading(false);
     }
 
-    componentDidMount() {
-        this.updateChar();  // вызов метода updateChar
-        this.timerId = setInterval(this.updateChar, 15000);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.timerId);
-    }
-
-    onError = (err) => {
-        this.setState({
-            error: true,
-            loading: false
-        })
-    }
-
-    updateChar = () => {
+    function updateChar() {
         const id = Math.floor(Math.random() * 140 + 25); //  начиная с 25 и заканчивая 140 
-        this.gotService.getCharacter(id)
+        gotService.getCharacter(id)
             .then(char => {
-                this.setState({
-                    char,
-                    loading: false
-                })
+                changeChar(char);
+                changeLoading(false);
             })
-            .catch(this.onError)
+            .catch(onError)
     }
 
-    render() {
-        const { char, loading, error } = this.state;
+    const errorMessage = error ? <ErrorMessage /> : null;
+    const spinner = loading ? <Spinner /> : null;
+    const content = !(loading || error) ? <View char={char} /> : null;
 
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error) ? <View char={char}/>: null;
+    return (
+        <div className="random-block rounded">
+            {errorMessage}
+            {spinner}
+            {content}
+        </div>
+    );
 
-        return (
-            <div className="random-block rounded">
-                {errorMessage}
-                {spinner}
-                {content}
-            </div>
-        );
-    }
 }
 
 const View = ({ char }) => {
@@ -89,3 +75,5 @@ const View = ({ char }) => {
         </>
     )
 }
+
+export default RandomChar;
